@@ -72,9 +72,6 @@ v-casino/
 
 *   Otwórz adres wyświetlony w terminalu (zazwyczaj http://localhost:5173).
 
-Oto sformatowany fragment sekcji Roadmap oraz Skład Zespołu, przygotowany w czystym kodzie Markdown. Możesz go wkleić bezpośrednio do swojego pliku README.md.
-Markdown
-
 ---
 
 ## 🛠️ Roadmap Projektu
