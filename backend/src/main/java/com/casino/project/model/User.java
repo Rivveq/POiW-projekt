@@ -26,9 +26,9 @@ public class User implements UserDetails {
     private String username;
 
     @Column(nullable = false)
-    private String password; // To do haszowania kiedys
+    private String password;
 
-    private Double balance = 100.0; // Kaska do becików na start
+    private Double balance = 100.0;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -37,6 +37,9 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Wallet wallet;
 
     @Override
     public boolean isAccountNonExpired() {
