@@ -1,6 +1,10 @@
 package com.casino.project.controller;
 
+import com.casino.project.dto.wallet.DepositRequest;
+import com.casino.project.dto.wallet.WalletResponse;
 import com.casino.project.service.WalletService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,29 +14,20 @@ import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/wallet")
+@RequiredArgsConstructor
 public class WalletController {
 
     private final WalletService walletService;
 
-    public WalletController(WalletService walletService) {
-        this.walletService = walletService;
-    }
-
     @GetMapping("/balance")
-    public ResponseEntity<BigDecimal> getBalance(@AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        BigDecimal balance = walletService.getBalanceByUsername(username);
-        return ResponseEntity.ok(balance);
+    public ResponseEntity<WalletResponse> getBalance(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(walletService.getBalance(userDetails.getUsername()));
     }
 
     @PostMapping("/deposit")
-    public ResponseEntity<BigDecimal> deposit(
+    public ResponseEntity<WalletResponse> deposit(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody DepositRequest request) {
-        String username = userDetails.getUsername();
-        BigDecimal newBalance = walletService.deposit(request.amount(),  username);
-        return ResponseEntity.ok(newBalance);
+            @Valid @RequestBody DepositRequest request) {
+        return ResponseEntity.ok(walletService.deposit(userDetails.getUsername(), request.amount()));
     }
-
-    public record DepositRequest(BigDecimal amount) {}
 }
