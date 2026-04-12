@@ -2,7 +2,7 @@ package com.casino.project.model;
 
 import com.casino.project.model.User;
 import jakarta.persistence.*;
-import org.springframework.data.annotation.Id;
+
 
 import java.math.BigDecimal;
 
