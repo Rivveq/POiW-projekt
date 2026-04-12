@@ -1,37 +1,67 @@
 package com.casino.project.service;
 
+import com.casino.project.dto.user.UserLoginRequest;
+import com.casino.project.dto.user.UserRegistrationRequest;
+import com.casino.project.dto.user.UserResponse;
+import com.casino.project.model.Role;
 import com.casino.project.model.User;
 import com.casino.project.model.Wallet;
 import com.casino.project.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
-    }
     @Transactional
-    public User registerUser(User user) {
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new RuntimeException("Użytkownik o takiej nazwie już istnieje!");
+    public UserResponse registerUser(UserRegistrationRequest request) {
+        if (userRepository.findByUsername(request.username()).isPresent()) {
+            throw new RuntimeException("User already exists!");
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        User user = new User();
+        user.setUsername(request.username());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole(Role.USER);
 
         Wallet wallet = new Wallet();
+        wallet.setBalance(BigDecimal.ZERO);
         wallet.setUser(user);
         user.setWallet(wallet);
-        return userRepository.save(user);
+
+        User savedUser = userRepository.save(user);
+        return mapToResponse(savedUser);
     }
 
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Nie znaleziono użytkownika"));
+    public UserResponse getUserResponseByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return mapToResponse(user);
+    }
+
+    public UserResponse loginUser(UserLoginRequest request) {
+        User user = userRepository.findByUsername(request.username())
+                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new RuntimeException("Invalid username or password");
+        }
+
+        return mapToResponse(user);
+    }
+    private UserResponse mapToResponse(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getRole().name()
+        );
     }
 }
