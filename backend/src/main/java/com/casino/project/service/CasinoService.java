@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CasinoService {
-
+    /*
     @Autowired
     private UserRepository userRepository;
 
@@ -31,5 +31,5 @@ public class CasinoService {
             userRepository.save(user);
             return "Przegrałeś. Rzut: " + roll + ". Nowy stan konta: " + user.getBalance();
         }
-    }
+    }*/
 }
