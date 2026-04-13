@@ -64,4 +64,7 @@ public class UserService {
                 user.getRole().name()
         );
     }
+
+    public User registerUser(String username, String password) {
+    }
 }
