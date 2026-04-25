@@ -1,0 +1,105 @@
+@host = http://localhost:8080
+
+### 0) Health check
+GET {{host}}/api/status
+Accept: application/json
+
+### 1) Auth: Register
+< {%
+    client.global.set("username", "gracz_" + new Date().getTime());
+    client.global.set("password", "mojeSuperHaslo123");
+%}
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+### 2) Auth: Login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+> {%
+    if (response.status === 200 && response.body && response.body.token) {
+        client.global.set("token", response.body.token);
+    } else {
+        client.global.set("token", "BLAD_LOGOWANIA");
+    }
+%}
+
+### 3) Negative: access protected endpoint
+GET {{host}}/api/rooms
+Accept: application/json
+
+### 4) Users: current user info
+GET {{host}}/api/users/me
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### 5) Rooms: create
+POST {{host}}/api/rooms
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Blackjack-{{username}}",
+  "capacity": 5,
+  "minBet": 10.00
+}
+> {%
+    if (response.status === 200 || response.status === 201) {
+        client.global.set("roomId", response.body.id || response.body.roomId || "BRAK_ID");
+    } else {
+        client.global.set("roomId", "BLAD_TWORZENIA");
+    }
+%}
+
+### 6) Rooms: get by id
+GET {{host}}/api/rooms/{{roomId}}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### 7) Rooms: list
+GET {{host}}/api/rooms?page=0&size=10
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### 8) Rooms: update
+PATCH {{host}}/api/rooms/{{roomId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "VIP-{{username}}",
+  "capacity": 6
+}
+
+### 9) Wallet: get balance
+GET {{host}}/api/wallet/balance
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### 10) Wallet: deposit
+POST {{host}}/api/wallet/deposit
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "amount": 100.00
+}
+
+### 11) Rooms: delete
+DELETE {{host}}/api/rooms/{{roomId}}
+Authorization: Bearer {{token}}
+
+### 12) CORS preflight
+OPTIONS {{host}}/api/auth/login
+Origin: http://localhost:5173
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: content-type
