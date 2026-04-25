@@ -7,6 +7,7 @@ import com.casino.project.model.Room;
 import com.casino.project.model.User;
 import com.casino.project.repository.RoomRepository;
 import com.casino.project.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
@@ -24,10 +25,12 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomResponse createRoom(RoomCreateRequest request) {
+    public RoomResponse createRoom(RoomCreateRequest request, String username) {
         Room room = new Room();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("No player found with username " + username));
         room.setName(request.name());
         room.setCapacity(request.capacity());
+        room.setOwner(user);
         Room savedRoom = roomRepository.save(room);
         return mapToResponse(savedRoom);
     }
@@ -59,25 +62,41 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomResponse updateRoom(Long roomId, RoomUpdateRequest request) {
-        Room room = roomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("No room found with id " + roomId));
+    public RoomResponse updateRoom(Long roomId, RoomUpdateRequest request, String username) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("No room found with id " + roomId));
+
+        if (!room.getOwner().getUsername().equals(username)) {
+            throw new AccessDeniedException("You are not the owner of this room");
+        }
         room.setName(request.name());
         room.setCapacity(request.capacity());
-        Room updatedRoom = roomRepository.save(room);
-        return mapToResponse(updatedRoom);
+        return mapToResponse(room);
     }
 
     @Transactional
-    public void deleteRoom(Long roomId) {
+    public void deleteRoom(Long roomId, String username) {
         Room room = roomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("No room found with id " + roomId));
+        if (!room.getOwner().getUsername().equals(username)) {
+            throw new AccessDeniedException("You are not the owner of this room");
+        }
         roomRepository.delete(room);
     }
 
     @Transactional
-    public void joinRoom(Long userId, Long roomId) {
+    public RoomResponse joinRoom(String username, Long roomId) {
         Room room = roomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("No room found with id " + roomId));
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("No player found with id " + userId));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("No player found with id " + username));
 
         user.setCurrentRoom(room);
+        return mapToResponse(room);
+    }
+
+    @Transactional
+    public RoomResponse leaveRoom(String username, Long roomId) {
+        Room room = roomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("No room found with id " + roomId));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("No player found with username " + username));
+        user.setCurrentRoom(null);
+        return mapToResponse(room);
     }
 }

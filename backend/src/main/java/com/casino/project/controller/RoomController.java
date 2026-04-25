@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,9 +21,9 @@ public class RoomController {
 
     private final RoomService roomService;
 
-    @PostMapping
-    public RoomResponse createRoom(@Valid @RequestBody RoomCreateRequest request) {
-        return roomService.createRoom(request);
+    public RoomResponse createRoom(@Valid @RequestBody RoomCreateRequest request,
+                                   @AuthenticationPrincipal UserDetails userDetails) {
+        return roomService.createRoom(request, userDetails.getUsername());
     }
 
     @GetMapping("/{id}")
@@ -38,12 +40,24 @@ public class RoomController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteRoom(@PathVariable Long id) {
-        roomService.deleteRoom(id);
+    public void deleteRoom(@PathVariable Long id,  @AuthenticationPrincipal UserDetails userDetails) {
+        roomService.deleteRoom(id, userDetails.getUsername());
     }
 
     @PatchMapping("/{id}")
-    public RoomResponse updateRoom(@PathVariable Long id, @RequestBody RoomUpdateRequest request){
-        return roomService.updateRoom(id, request);
+    public RoomResponse updateRoom(@PathVariable Long id, @RequestBody RoomUpdateRequest request, @AuthenticationPrincipal UserDetails userDetails){
+        return roomService.updateRoom(id, request, userDetails.getUsername());
+    }
+
+    @PostMapping("/{id}/join")
+    public RoomResponse joinRoom(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails.getUsername();
+        return roomService.joinRoom(username, id);
+    }
+
+    @PostMapping("/{id}/leave")
+    public RoomResponse leaveRoom(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails.getUsername();
+        return roomService.leaveRoom(username, id);
     }
 }
