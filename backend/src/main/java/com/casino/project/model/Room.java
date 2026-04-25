@@ -24,4 +24,11 @@ public class Room {
     @OneToMany(mappedBy = "currentRoom")
     private List<User> players;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RoomStatus status = RoomStatus.WAITING;
 }
