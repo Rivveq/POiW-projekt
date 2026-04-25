@@ -7,5 +7,6 @@ public record RoomResponse(
         String name,
         int capacity,
         int currentPlayersCount,
-        List<String> playerNames
+        List<String> playerNames,
+        String status
 ) {}

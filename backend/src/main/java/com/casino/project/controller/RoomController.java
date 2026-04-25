@@ -60,4 +60,28 @@ public class RoomController {
         String username = userDetails.getUsername();
         return roomService.leaveRoom(username, id);
     }
+
+    @PostMapping("/{id}/start")
+    public RoomResponse startRoom(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails.getUsername();
+        return roomService.startGame(id, username);
+    }
+
+    @GetMapping("{id}/game")
+    public RoomResponse getGame(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails.getUsername();
+        return roomService.gameStatus(id,username);
+    }
+
+    @PostMapping("{id}/action")
+    public RoomResponse actionRoom(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails.getUsername();
+        return roomService.gameAction(id,username);
+    }
+
+    @PostMapping("{id}/end")
+    public RoomResponse endRoom(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails.getUsername();
+        return roomService.endGame(id, username);
+    }
 }

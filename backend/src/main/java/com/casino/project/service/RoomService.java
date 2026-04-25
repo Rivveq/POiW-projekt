@@ -4,6 +4,7 @@ import com.casino.project.dto.room.RoomCreateRequest;
 import com.casino.project.dto.room.RoomResponse;
 import com.casino.project.dto.room.RoomUpdateRequest;
 import com.casino.project.model.Room;
+import com.casino.project.model.RoomStatus;
 import com.casino.project.model.User;
 import com.casino.project.repository.RoomRepository;
 import com.casino.project.repository.UserRepository;
@@ -97,6 +98,48 @@ public class RoomService {
         Room room = roomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("No room found with id " + roomId));
         User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("No player found with username " + username));
         user.setCurrentRoom(null);
+        return mapToResponse(room);
+    }
+
+    @Transactional
+    public RoomResponse startGame(Long roomId, String username) {
+        Room room = roomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("No room found with id " + roomId));
+
+        if (!room.getOwner().getUsername().equals(username)) {
+            throw new AccessDeniedException("Only owner can start the game");
+        }
+
+        if (room.getStatus() != RoomStatus.WAITING) {
+            throw new IllegalStateException("Game already in progress or finished");
+        }
+
+        if (room.getPlayers().size() < room.getCapacity()) {
+            throw new IllegalStateException("Not enough players to start");
+        }
+
+        room.setStatus(RoomStatus.IN_GAME);
+        // Game state
+
+        return mapToResponse(room);
+    }
+
+    @Transactional
+    public RoomResponse gameStatus(Long roomId, String username) {
+        Room room = roomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("No room found with id " + roomId));
+        // Game state
+        return mapToResponse(room);
+    }
+
+    @Transactional
+    public RoomResponse gameAction(Long roomId, String username /* Action body here */) {
+        Room room = roomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("No room found with id " + roomId));
+        // Game state
+        return mapToResponse(room);
+    }
+    @Transactional
+    public RoomResponse endGame(Long roomId, String username) {
+        Room room = roomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("No room found with id " + roomId));
+        // Game state
         return mapToResponse(room);
     }
 }
