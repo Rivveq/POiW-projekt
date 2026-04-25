@@ -1,6 +1,7 @@
 package com.casino.project.controller;
 
-import com.casino.project.model.User;
+import com.casino.project.dto.user.UserRegistrationRequest;
+import com.casino.project.dto.user.UserResponse;
 import com.casino.project.service.AuthService;
 import com.casino.project.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
-        User savedUser = userService.registerUser(request.username(), request.password());
+    public ResponseEntity<UserResponse> register(@RequestBody UserRegistrationRequest request) {
+        UserResponse savedUser = userService.registerUser(request);
         return ResponseEntity.ok(savedUser);
     }
 
