@@ -4,7 +4,7 @@ import com.casino.project.model.User;
 import com.casino.project.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+/*
 @Service
 public class CasinoService {
 
@@ -32,4 +32,4 @@ public class CasinoService {
             return "Przegrałeś. Rzut: " + roll + ". Nowy stan konta: " + user.getBalance();
         }
     }
-}
+}*/
