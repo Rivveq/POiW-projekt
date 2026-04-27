@@ -1,0 +1,57 @@
+### Rejestracja (Robimy to tylko RAZ na nowym Dockerze)
+POST http://{{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "tester123",
+  "password": "securePassword123"
+}
+
+### Logowanie (Pobranie i zapisanie tokena)
+POST http://{{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "tester123",
+  "password": "securePassword123"
+}
+
+> {%
+    client.global.set("auth_token", response.body.token);
+    client.log("Token zapisany pomyślnie!");
+%}
+
+### Doładowanie portfela (Bo nowy użytkownik ma 0.00)
+POST http://{{host}}/api/wallet/deposit
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "amount": 1000.00
+}
+
+### GRA: Zakręcenie slotem
+POST http://{{host}}/api/slots/spin
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "betAmount": 10.0
+}
+
+> {%
+    client.test("Wynik gry w automaty", function() {
+        client.assert(response.status === 200, "Błąd! Serwer nie odpowiedział poprawnie (kod: " + response.status + ")");
+
+        var win = response.body.winAmount;
+        var symbols = response.body.symbols.join(" | ");
+
+        client.log("SYMBOLE: [ " + symbols + " ]");
+
+        if (win > 0) {
+            client.log("WYGRANA: " + win + " PLN!");
+        } else {
+            client.log("PRZEGRANA. Spróbuj jeszcze raz.");
+        }
+    });
+%}
