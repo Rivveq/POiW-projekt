@@ -1,121 +1,67 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React from 'react';
+import { useRouletteGame } from './hooks/useRouletteGame';
+import WheelContainer from './components/WheelContainer';
+import BettingBoard from './components/BettingBoard';
+import ActionBar from './components/ActionBar';
+import HotColdPanel from './components/HotColdPanel';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+    const {
+        balance, history, currentBets, selectedChip, winningNumber,
+        isSpinning, hotNumbers, coldNumbers, placeBet, setSelectedChip, spinWheel, clearBets,
+        showWinSplash, winAmount // <-- Przywrócone dane o wygranej!
+    } = useRouletteGame();
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    return (
+        <div className="min-h-screen font-serif flex flex-col p-4 md:p-8 max-w-[1600px] mx-auto gap-6">
+
+            {/* ELEGANCKI KOMUNIKAT O WYGRANEJ */}
+            {showWinSplash && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md">
+                    <div className="text-center animate-bounce bg-[#2a1b12] border-[4px] border-roulette-brass p-12 rounded-3xl shadow-[0_0_100px_rgba(197,163,99,0.5)]">
+                        <h1 className="text-5xl md:text-7xl font-black text-roulette-gold tracking-widest uppercase mb-4 drop-shadow-lg" style={{ fontFamily: 'Cinzel, serif' }}>
+                            WYGRANA!
+                        </h1>
+                        <p className="text-4xl md:text-6xl font-black text-white" style={{ fontFamily: 'Playfair Display, serif' }}>
+                            +${winAmount.toLocaleString()}
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            {/* ELEGANCKI TYTUŁ */}
+            <div className="text-center mt-2 mb-4">
+                <h1 className="text-4xl md:text-5xl text-roulette-gold tracking-[0.2em] font-medium drop-shadow-lg" style={{ fontFamily: 'Cinzel, serif' }}>
+                    MONTE CARLO
+                </h1>
+                <div className="w-32 h-[2px] bg-roulette-brass mx-auto mt-3 opacity-50"></div>
+            </div>
+
+            {/* GÓRNY RZĄD: Większe Koło i Statystyki */}
+            <div className="flex flex-col lg:flex-row gap-8 w-full max-w-6xl mx-auto items-center justify-center">
+                <div className="w-full lg:w-2/3 flex justify-center">
+                    <WheelContainer lastResult={winningNumber} isSpinning={isSpinning} />
+                </div>
+                <div className="w-full lg:w-1/3">
+                    <HotColdPanel hotNumbers={hotNumbers} coldNumbers={coldNumbers} history={history} />
+                </div>
+            </div>
+
+            {/* DOLNY RZĄD: Zmniejszona plansza na środku */}
+            <div className="flex-grow flex flex-col gap-6 w-full max-w-6xl mx-auto">
+                <div className="w-full bg-[#0c261e] border-2 border-roulette-brass p-4 rounded-2xl shadow-[inset_0_0_50px_rgba(0,0,0,0.6)]">
+                    <BettingBoard placeBet={placeBet} bets={currentBets} isSpinning={isSpinning} />
+                </div>
+
+                <ActionBar
+                    balance={balance}
+                    selectedChip={selectedChip}
+                    setSelectedChip={setSelectedChip}
+                    spinWheel={spinWheel}
+                    isSpinning={isSpinning}
+                    clearBets={clearBets}
+                />
+            </div>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    );
 }
-
-export default App
