@@ -67,4 +67,17 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value(mockToken));
     }
+
+    @Test
+    void shouldReturnBadRequestWhenRegistrationDataIsInvalid() throws Exception {
+
+        // given
+        UserRegistrationRequest invalidRequest = new UserRegistrationRequest("", "123");
+
+        // when & then
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest());
+    }
 }
