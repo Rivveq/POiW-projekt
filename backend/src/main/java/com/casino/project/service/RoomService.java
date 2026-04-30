@@ -58,7 +58,8 @@ public class RoomService {
                 room.getName(),
                 room.getCapacity(),
                 playerNames.size(),
-                playerNames
+                playerNames,
+                room.getStatus().name()
         );
     }
 
