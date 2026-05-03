@@ -33,6 +33,18 @@ public class WalletService {
         return new WalletResponse(wallet.getBalance());
     }
 
+    @Transactional
+    public void withdraw(String username, BigDecimal amount) {
+        Wallet wallet = getWalletEntityByUsername(username);
+
+        if (wallet.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient funds");
+        }
+
+        wallet.setBalance(wallet.getBalance().subtract(amount));
+        walletRepository.save(wallet);
+    }
+
     private Wallet getWalletEntityByUsername(String username) {
         return walletRepository.findByUserUsername(username)
                 .orElseThrow(() -> new RuntimeException("Wallet not found"));
