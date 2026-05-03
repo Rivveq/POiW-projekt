@@ -1,5 +1,7 @@
 package com.casino.project.service;
 
+import com.casino.project.dto.auth.LoginResponse;
+import com.casino.project.dto.user.UserResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,24 +20,34 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtEncoder jwtEncoder;
+    private final UserService userService;
 
-    public AuthService(AuthenticationManager authenticationManager, JwtEncoder jwtEncoder) {
+    public AuthService(AuthenticationManager authenticationManager,
+                       JwtEncoder jwtEncoder,
+                       UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtEncoder = jwtEncoder;
+        this.userService = userService;
     }
 
-    public String authenticateAndGetToken(String username, String password) {
+    public LoginResponse login(String username, String password) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password)
         );
 
+        String token = encodeToken(authentication.getName());
+        UserResponse user = userService.getUserResponseByUsername(authentication.getName());
+        return new LoginResponse(token, user);
+    }
+
+    private String encodeToken(String subject) {
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("casino-project")
                 .issuedAt(now)
                 .expiresAt(now.plus(24, ChronoUnit.HOURS))
-                .subject(authentication.getName())
+                .subject(subject)
                 .build();
 
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
