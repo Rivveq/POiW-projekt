@@ -1,0 +1,18 @@
+.warning-box {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(243, 194, 107, 0.25);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 25px;
+    color: #f1f2f6;
+    line-height: 1.5;
+}
+
+.age-notice {
+    color: #f3c26b;
+    font-weight: 600;
+    margin: 8px 0 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}

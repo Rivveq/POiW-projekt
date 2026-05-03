@@ -1,11 +1,16 @@
 package com.casino.project.controller;
 
+import com.casino.project.dto.auth.LoginResponse;
+import com.casino.project.dto.user.UserLoginRequest;
 import com.casino.project.dto.user.UserRegistrationRequest;
 import com.casino.project.dto.user.UserResponse;
 import com.casino.project.service.AuthService;
 import com.casino.project.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,18 +25,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@RequestBody UserRegistrationRequest request) {
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRegistrationRequest request) {
         UserResponse savedUser = userService.registerUser(request);
-        return ResponseEntity.ok(savedUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
-        String token = authService.authenticateAndGetToken(request.username(), request.password());
-        return ResponseEntity.ok(new TokenResponse(token));
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody UserLoginRequest request) {
+        LoginResponse response = authService.login(request.username(), request.password());
+        return ResponseEntity.ok(response);
     }
-
-    public record LoginRequest(String username, String password) {}
-    public record RegisterRequest(String username, String password) {}
-    public record TokenResponse(String token) {}
 }
