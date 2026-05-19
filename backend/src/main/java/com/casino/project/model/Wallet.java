@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import jakarta.persistence.Version;
 
 import java.math.BigDecimal;
 
@@ -24,6 +25,9 @@ public class Wallet {
 
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal balance = BigDecimal.ZERO;
+
+    @Version
+    private Long version;
 
     @Override
     public boolean equals(Object o) {

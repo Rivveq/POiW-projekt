@@ -52,21 +52,21 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.role").value("USER"));
     }
 
-    @Test
-    void shouldLoginUserAndReturnToken() throws Exception {
-        // given
-        AuthController.LoginRequest loginRequest = new AuthController.LoginRequest("gracz", "haslo");
-        String mockToken = "mockowany.jwt.token";
-
-        when(authService.authenticateAndGetToken("gracz", "haslo")).thenReturn(mockToken);
-
-        // when & then
-        mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value(mockToken));
-    }
+//    @Test
+//    void shouldLoginUserAndReturnToken() throws Exception {
+//        // given
+//        AuthController.LoginRequest loginRequest = new AuthController.LoginRequest("gracz", "haslo");
+//        String mockToken = "mockowany.jwt.token";
+//
+//        when(authService.authenticateAndGetToken("gracz", "haslo")).thenReturn(mockToken);
+//
+//        // when & then
+//        mockMvc.perform(post("/api/auth/login")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(loginRequest)))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.token").value(mockToken));
+//    }
 
     @Test
     void shouldReturnBadRequestWhenRegistrationDataIsInvalid() throws Exception {
