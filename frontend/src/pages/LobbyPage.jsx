@@ -31,9 +31,9 @@ export function LobbyPage() {
                     </div>
                     <button
                         className="btn-success neon-green-btn"
-                        onClick={() => topUp(100)}
+                        onClick={() => navigate('/deposit')}
                     >
-                        💰 Top Up $100
+                        💳 Deposit Funds
                     </button>
                 </div>
 
