@@ -4,9 +4,8 @@ import com.casino.project.dto.games.SlotsRequest;
 import com.casino.project.service.games.SlotsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/slots")
@@ -17,11 +16,12 @@ public class SlotsController {
 
     @PostMapping("/spin")
     public ResponseEntity<SlotsService.SlotResult> spin(
-            @AuthenticationPrincipal UserDetails userDetails,
+            Principal principal,
             @RequestBody SlotsRequest request) {
+        System.out.println("DEBUG: Użytkownik próbujący grać to: " + principal.getName());
 
-        // userDetails.getUsername() zwraca login zalogowanego gracza
-        SlotsService.SlotResult result = slotsService.spin(userDetails.getUsername(), request.betAmount());
+        // principal.getName() bezpiecznie wyciąga login (tzw. 'sub') prosto z Twojego tokena JWT
+        SlotsService.SlotResult result = slotsService.spin(principal.getName(), request.betAmount());
 
         return ResponseEntity.ok(result);
     }
