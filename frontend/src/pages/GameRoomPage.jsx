@@ -33,14 +33,21 @@ export function GameRoomPage() {
                     </strong>
                 </div>
 
-                <div className="game-placeholder-luxe">
-                    <p className="placeholder-text">Construction in progress... 🚧</p>
-                    <p className="placeholder-subtext">Table will be ready shortly.</p>
+                {/* WARUNKOWE RENDEROWANIE GRY */}
+                {gameId === 'roulette' ? (
+                    // Jeśli ID to roulette, renderujemy przygotowaną pod serwer ruletkę
+                    <RoulettePage />
+                ) : (
+                    // Dla pozostałych gier wyświetlamy dotychczasowy placeholder
+                    <div className="game-placeholder-luxe">
+                        <p className="placeholder-text">Construction in progress... 🚧</p>
+                        <p className="placeholder-subtext">Table will be ready shortly.</p>
 
-                    <button className="btn-primary neon-btn" onClick={handleBet}>
-                        🎲 Test Bet ($10 daje +15 XP)
-                    </button>
-                </div>
+                        <button className="btn-primary neon-btn" onClick={handleBet}>
+                            🎲 Test Bet ($10 daje +15 XP)
+                        </button>
+                    </div>
+                )}
 
                 <button
                     className="btn-secondary neon-btn-outline"

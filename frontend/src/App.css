@@ -29,7 +29,7 @@ html, body, #root {
     width: 100%;
     min-height: 100vh;
     background: linear-gradient(rgba(13, 13, 15, 0.85), rgba(13, 13, 15, 0.9)),
-    url('/casino-bg.png') no-repeat center center fixed;
+    url('../public/casino-bg.png') no-repeat center center fixed;
     background-size: cover;
     display: flex;
     justify-content: center;
