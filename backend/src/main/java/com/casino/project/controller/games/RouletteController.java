@@ -20,11 +20,10 @@ public class RouletteController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody RouletteBetRequest request) {
 
+        // Przekazywanie username z tokenu i mapy zakladow z requesta
         return ResponseEntity.ok(rouletteService.play(
                 userDetails.getUsername(),
-                request.amount(),
-                request.type(),
-                request.value()
+                request.bets()
         ));
     }
 }
