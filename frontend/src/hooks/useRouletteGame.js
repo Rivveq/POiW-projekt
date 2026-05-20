@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../services/api';
 
 // Hook przyjmuje teraz startowy balans z zewnątrz
 export const useRouletteGame = (initialBalance) => {
@@ -41,19 +42,11 @@ export const useRouletteGame = (initialBalance) => {
         setLastWin(0);
 
         try {
-            const token = localStorage.getItem('token');
-
-            const response = await fetch(`http://localhost:8080/api/roulette/bet`, {
+            // Używamy gotowego helpera, który sam wkleja odpowiedni token i parsowanie JSON:
+            const data = await apiFetch('/api/roulette/bet', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ bets: currentBets })
+                body: { bets: currentBets }
             });
-
-            if (!response.ok) throw new Error('Błąd komunikacji z serwerem');
-            const data = await response.json();
 
             setWinningNumber(data.winningNumber);
             setRouletteBalance(prev => prev - totalCurrentBet);

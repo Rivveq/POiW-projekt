@@ -3,6 +3,7 @@ import { AppShell } from '../components/AppShell/AppShell'
 import { useGameState } from '../hooks/useGameState'
 import './GameRoomPage.css'
 import RoulettePage from "./RoulettePage.jsx";
+import { SlotsPage } from "./SlotsPage.jsx"; // <-- 1. Dodajemy import
 
 const GAME_NAMES = {
     slots: 'Slots Max',
@@ -22,13 +23,16 @@ export function GameRoomPage() {
         if (!ok) alert('Insufficient Funds!')
     }
 
+    // Dodajemy 'slots' do warunku, aby gra miała szeroki kontener na ekranie
+    const isWideGame = gameId === 'roulette' || gameId === 'slots';
+
     return (
         <AppShell>
-            {/* DYNAMICZNA KLASA SZEROKOŚCI: jeśli to ruletka, dajemy max-w-7xl, w innym wypadku zostaje standardowy styl */}
-            <div className={`view-container glassmorphism fade-in ${gameId === 'roulette' ? 'max-w-7xl w-full mx-auto' : ''}`}>
+            <div className={`view-container glassmorphism fade-in ${isWideGame ? 'max-w-7xl w-full mx-auto' : ''}`}>
                 <h2 className="neon-title">Room: {gameName}</h2>
 
-                {gameId !== 'roulette' && (
+                {/* Ukrywamy ten mały portfelik dla ruletki i slotsów, bo obie gry mają własne wyświetlacze balansu */}
+                {!isWideGame && (
                     <div className="wallet-panel glassmorphism-dark mini-wallet">
                         <p className="balance-label">Lounge Balance:</p>
                         <strong className="balance-amount neon-green mini">
@@ -37,10 +41,12 @@ export function GameRoomPage() {
                     </div>
                 )}
 
-                {/* WARUNKOWE RENDEROWANIE GRY */}
-                {gameId === 'roulette' ? (
-                    <RoulettePage globalBalance={balance}/>
-                ) : (
+                {/* 2. WARUNKOWE RENDEROWANIE GRY */}
+                {gameId === 'roulette' && <RoulettePage globalBalance={balance}/>}
+
+                {gameId === 'slots' && <SlotsPage />}
+
+                {!isWideGame && (
                     <div className="game-placeholder-luxe">
                         <p className="placeholder-text">Construction in progress... 🚧</p>
                         <p className="placeholder-subtext">Table will be ready shortly.</p>
@@ -52,7 +58,7 @@ export function GameRoomPage() {
                 )}
 
                 <button
-                    className="btn-secondary neon-btn-outline"
+                    className="btn-secondary neon-btn-outline mt-6"
                     onClick={() => navigate('/lobby')}
                 >
                     🔙 Return to Lobby

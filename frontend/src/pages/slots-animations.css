@@ -1,0 +1,50 @@
+/* Animacja pulsowania wygranych komórek */
+@keyframes winningCellGlow {
+    0% {
+        border-color: #c5a363;
+        box-shadow: 0 0 20px rgba(197, 163, 99, 0.4);
+    }
+    50% {
+        border-color: #e6c883;
+        box-shadow: 0 0 50px rgba(230, 200, 131, 0.9);
+        transform: scale(1.05);
+    }
+    100% {
+        border-color: #c5a363;
+        box-shadow: 0 0 20px rgba(197, 163, 99, 0.4);
+    }
+}
+
+/* Stan, gdy bęben się "kręci" - rozmycie pionowe */
+.slot-reel-spinning {
+    filter: blur(5px) drop-shadow(0 10px 0 rgba(0,0,0,0.5)); /* Dodana spacja przed rgba */
+    animation: reelSpinBlur 0.1s linear infinite;
+    opacity: 0.8;
+}
+
+@keyframes reelSpinBlur {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(5px); }
+}
+
+/* Klasa dodawana do komórek będących częścią wygranej linii */
+.slot-cell-winner {
+    position: relative;
+    border-width: 4px !important;
+    border-color: #c5a363 !important;
+    z-index: 10;
+    animation: winningCellGlow 1.2s ease-in-out infinite !important;
+    box-shadow: 0 0 40px rgba(197, 163, 99, 0.8) !important;
+}
+
+/* Dodatkowy pseudo-element dla efektu iskier na krawędziach */
+.slot-cell-winner::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 2px solid #e6c883;
+    border-radius: inherit;
+    animation: winningCellGlow 1.2s ease-in-out infinite;
+    animation-delay: 0.3s;
+    opacity: 0.5;
+}
