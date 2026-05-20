@@ -3,12 +3,11 @@ import { useRouletteGame } from './hooks/useRouletteGame';
 import WheelContainer from './components/WheelContainer';
 import BettingBoard from './components/BettingBoard';
 import ActionBar from './components/ActionBar';
-import HotColdPanel from './components/HotColdPanel';
 
 export default function App() {
     const {
-        balance, history, currentBets, selectedChip, winningNumber,
-        isSpinning, hotNumbers, coldNumbers, placeBet, setSelectedChip, spinWheel, clearBets,
+        balance, currentBets, selectedChip, winningNumber,
+        isSpinning, placeBet, setSelectedChip, spinWheel, clearBets,
         showWinSplash, winAmount // <-- Przywrócone dane o wygranej!
     } = useRouletteGame();
 
@@ -38,13 +37,8 @@ export default function App() {
             </div>
 
             {/* GÓRNY RZĄD: Większe Koło i Statystyki */}
-            <div className="flex flex-col lg:flex-row gap-8 w-full max-w-6xl mx-auto items-center justify-center">
-                <div className="w-full lg:w-2/3 flex justify-center">
-                    <WheelContainer lastResult={winningNumber} isSpinning={isSpinning} />
-                </div>
-                <div className="w-full lg:w-1/3">
-                    <HotColdPanel hotNumbers={hotNumbers} coldNumbers={coldNumbers} history={history} />
-                </div>
+            <div className="flex w-full max-w-6xl mx-auto items-center justify-center">
+                <WheelContainer lastResult={winningNumber} isSpinning={isSpinning} />
             </div>
 
             {/* DOLNY RZĄD: Zmniejszona plansza na środku */}

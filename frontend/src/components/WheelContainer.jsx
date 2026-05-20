@@ -43,7 +43,6 @@ export default function WheelContainer({ isSpinning, lastResult }) {
 
     return (
         <div className="w-full min-h-[350px] md:min-h-[450px] flex items-center justify-center p-6 wood-panel rounded-2xl relative shadow-2xl">
-            {/* ZWIĘKSZONY ROZMIAR KOŁA: lg:w-[28rem] lg:h-[28rem] */}
             <div className="relative w-80 h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] rounded-full border-[10px] border-[#2a1b12] shadow-[0_0_50px_rgba(0,0,0,0.8)] bg-[#2a1b12] ring-4 ring-roulette-brass">
 
                 <svg viewBox="0 0 100 100" className="w-full h-full rounded-full drop-shadow-xl">
