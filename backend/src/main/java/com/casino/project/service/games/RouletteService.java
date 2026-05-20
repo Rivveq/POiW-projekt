@@ -19,9 +19,6 @@ public class RouletteService {
     private static final List<Integer> RED_NUMBERS = Arrays.asList(1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36);
     private static final List<Integer> BLACK_NUMBERS = Arrays.asList(2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35);
 
-    // Historia numerow, do przerzucenia na baze danych
-    private final LinkedList<Integer> history = new LinkedList<>();
-
     @Transactional
     public RouletteResult play(String username, Map<String, Integer> bets) {
         int totalBet = bets.values().stream().mapToInt(Integer::intValue).sum();
@@ -31,7 +28,6 @@ public class RouletteService {
 
         // Losowanie
         int winningNumber = random.nextInt(37); // od 0 do 36
-        updateHistory(winningNumber);
 
         // Kalkulacja wygranych
         int totalWin = calculateWinnings(bets, winningNumber);
@@ -43,7 +39,7 @@ public class RouletteService {
 
         WalletResponse newBalance = walletService.getBalance(username);
 
-        return new RouletteResult(winningNumber, totalWin, newBalance, new ArrayList<>(history));
+        return new RouletteResult(winningNumber, totalWin, newBalance);
     }
 
     private int calculateWinnings(Map<String, Integer> bets, int result) {
@@ -74,12 +70,5 @@ public class RouletteService {
         return totalWin;
     }
 
-    private synchronized void updateHistory(int result) {
-        history.addFirst(result);
-        if (history.size() > 100) {
-            history.removeLast();
-        }
-    }
-
-    public record RouletteResult(int winningNumber, int totalWin, WalletResponse newBalance, ArrayList<Integer> history) {}
+    public record RouletteResult(int winningNumber, int totalWin, WalletResponse newBalance) {}
 }
