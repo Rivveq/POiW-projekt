@@ -4,9 +4,9 @@ import com.casino.project.dto.games.RouletteBetRequest;
 import com.casino.project.service.games.RouletteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal; // <-- Zwróć uwagę na ten import
 
 @RestController
 @RequestMapping("/api/roulette")
@@ -17,12 +17,12 @@ public class RouletteController {
 
     @PostMapping("/bet")
     public ResponseEntity<RouletteService.RouletteResult> placeBet(
-            @AuthenticationPrincipal UserDetails userDetails,
+            Principal principal, // Wstrzykujemy Principal zamiast UserDetails
             @RequestBody RouletteBetRequest request) {
 
-        // Przekazywanie username z tokenu i mapy zakladow z requesta
+        // principal.getName() bezpiecznie wyciąga nazwę użytkownika z tokena JWT
         return ResponseEntity.ok(rouletteService.play(
-                userDetails.getUsername(),
+                principal.getName(),
                 request.bets()
         ));
     }

@@ -3,31 +3,26 @@ package com.casino.project.controller;
 import com.casino.project.dto.wallet.DepositRequest;
 import com.casino.project.dto.wallet.WalletResponse;
 import com.casino.project.service.WalletService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
+import java.security.Principal; // <--- DODAJ TĘ LINIJĘ
 
 @RestController
 @RequestMapping("/api/wallet")
 @RequiredArgsConstructor
 public class WalletController {
-
     private final WalletService walletService;
 
     @GetMapping("/balance")
-    public ResponseEntity<WalletResponse> getBalance(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(walletService.getBalance(userDetails.getUsername()));
+    public ResponseEntity<WalletResponse> getBalance(Principal principal) {
+        return ResponseEntity.ok(walletService.getBalance(principal.getName()));
     }
 
     @PostMapping("/deposit")
-    public ResponseEntity<WalletResponse> deposit(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody DepositRequest request) {
-        return ResponseEntity.ok(walletService.deposit(userDetails.getUsername(), request.amount()));
+    public ResponseEntity<WalletResponse> deposit(Principal principal, @RequestBody DepositRequest request) {
+        // Zmieniono request.getAmount() na request.amount()
+        return ResponseEntity.ok(walletService.deposit(principal.getName(), request.amount()));
     }
 }
