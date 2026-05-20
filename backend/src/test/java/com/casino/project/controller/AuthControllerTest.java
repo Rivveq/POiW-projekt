@@ -1,5 +1,7 @@
 package com.casino.project.controller;
 
+import com.casino.project.dto.auth.LoginResponse;
+import com.casino.project.dto.user.UserLoginRequest;
 import com.casino.project.dto.user.UserRegistrationRequest;
 import com.casino.project.dto.user.UserResponse;
 import com.casino.project.service.AuthService;
@@ -47,7 +49,7 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.username").value("nowy_gracz"))
                 .andExpect(jsonPath("$.role").value("USER"));
     }
@@ -55,17 +57,22 @@ class AuthControllerTest {
     @Test
     void shouldLoginUserAndReturnToken() throws Exception {
         // given
-        AuthController.LoginRequest loginRequest = new AuthController.LoginRequest("gracz", "haslo");
-        String mockToken = "mockowany.jwt.token";
+        UserLoginRequest loginRequest = new UserLoginRequest("gracz", "haslo");
 
-        when(authService.authenticateAndGetToken("gracz", "haslo")).thenReturn(mockToken);
+        String mockToken = "mockowany.jwt.token";
+        UserResponse mockUser = new UserResponse(1L, "gracz", "USER");
+
+        LoginResponse mockResponse = new LoginResponse(mockToken, mockUser);
+
+        when(authService.login("gracz", "haslo")).thenReturn(mockResponse);
 
         // when & then
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value(mockToken));
+                .andExpect(jsonPath("$.token").value(mockToken))
+                .andExpect(jsonPath("$.user.username").value("gracz"));
     }
 
     @Test
