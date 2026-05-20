@@ -4,12 +4,12 @@ import WheelContainer from '../components/WheelContainer';
 import BettingBoard from '../components/BettingBoard';
 import ActionBar from '../components/ActionBar';
 
-export default function RoulettePage() {
+export default function RoulettePage({ globalBalance }) {
     const {
-        balance, currentBets, selectedChip, winningNumber,
+        rouletteBalance, currentBets, selectedChip, winningNumber,
         isSpinning, placeBet, setSelectedChip, spinWheel, clearBets,
-        showWinSplash, winAmount // <-- Przywrócone dane o wygranej!
-    } = useRouletteGame();
+        showWinSplash, winAmount
+    } = useRouletteGame(globalBalance);
 
     return (
         <div className="min-h-screen font-serif flex flex-col p-4 md:p-8 max-w-[1600px] mx-auto gap-6">
@@ -48,7 +48,7 @@ export default function RoulettePage() {
                 </div>
 
                 <ActionBar
-                    balance={balance}
+                    balance={rouletteBalance}
                     selectedChip={selectedChip}
                     setSelectedChip={setSelectedChip}
                     spinWheel={spinWheel}

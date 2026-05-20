@@ -33,3 +33,8 @@
 .placeholder-subtext {
     color: #a4b0be;
 }
+
+.view-container:has(.w-full) {
+    max-width: 1400px;
+    width: 100%;
+}

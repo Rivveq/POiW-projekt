@@ -1,12 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export const useRouletteGame = () => {
-    // Stan UI i portfela
-    const [balance, setBalance] = useState(10000); // Wartość początkowa (docelowo pobierana z API po zalogowaniu)
+// Hook przyjmuje teraz startowy balans z zewnątrz
+export const useRouletteGame = (initialBalance) => {
+    const [rouletteBalance, setRouletteBalance] = useState(initialBalance || 0);
     const [currentBets, setCurrentBets] = useState({});
     const [selectedChip, setSelectedChip] = useState(5);
 
-    // Stany losowania
     const [isSpinning, setIsSpinning] = useState(false);
     const [lastWin, setLastWin] = useState(0);
     const [winningNumber, setWinningNumber] = useState(null);
@@ -15,8 +14,14 @@ export const useRouletteGame = () => {
 
     const totalCurrentBet = Object.values(currentBets).reduce((a, b) => a + b, 0);
 
+    useEffect(() => {
+        if (initialBalance !== undefined) {
+            setRouletteBalance(Number(initialBalance));
+        }
+    }, [initialBalance]);
+
     const placeBet = (betId) => {
-        if (isSpinning || balance < totalCurrentBet + selectedChip) return;
+        if (isSpinning || rouletteBalance < totalCurrentBet + selectedChip) return;
         setCurrentBets(prev => ({
             ...prev,
             [betId]: (prev[betId] || 0) + selectedChip
@@ -38,37 +43,31 @@ export const useRouletteGame = () => {
         try {
             const token = localStorage.getItem('token');
 
-            // zapytanie do RoulettleController
             const response = await fetch(`http://localhost:8080/api/roulette/bet`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    bets: currentBets
-                })
+                body: JSON.stringify({ bets: currentBets })
             });
 
             if (!response.ok) throw new Error('Błąd komunikacji z serwerem');
             const data = await response.json();
 
-            // Wylosowany numer otrzymany od razu, co aktywuje animację koła
             setWinningNumber(data.winningNumber);
+            setRouletteBalance(prev => prev - totalCurrentBet);
 
-            // Tymczasowo zdejmujmowanie z balansu kwoty zakładów, żeby UI dobrze wyglądało podczas kręcenia
-            setBalance(prev => prev - totalCurrentBet);
-
-            // Czekanie aż koło wizualnie się zatrzyma (8.5 sekundy)
             setTimeout(() => {
                 setIsSpinning(false);
 
-                // Przypisanie finalnego stanu z serwera
-                // Możliwe źłe dopasowanie danych !!!!!!!!!!!!!!!!!!!!!!!!!!
-                setBalance(data.newBalance.balance !== undefined ? data.newBalance.balance : data.newBalance.amount);
+                // Po kręceniu serwer w RouletteResult zwraca nam zaktualizowany portfel
+                if (data && data.newBalance) {
+                    const freshBalance = data.newBalance.balance ?? data.newBalance.amount ?? data.newBalance;
+                    setRouletteBalance(Number(freshBalance));
+                }
 
-                // Animacja wygranej bazująca na backendowym 'totalWin'
-                if (data.totalWin > 0) {
+                if (data && data.totalWin > 0) {
                     setLastWin(data.totalWin);
                     setWinAmount(data.totalWin);
                     setShowWinSplash(true);
@@ -85,7 +84,7 @@ export const useRouletteGame = () => {
     };
 
     return {
-        balance, currentBets, selectedChip, setSelectedChip,
+        rouletteBalance, currentBets, selectedChip, setSelectedChip,
         isSpinning, lastWin, winningNumber, totalCurrentBet,
         placeBet, clearBets, spinWheel, showWinSplash, winAmount
     };

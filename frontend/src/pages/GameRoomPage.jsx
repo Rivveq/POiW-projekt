@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../components/AppShell/AppShell'
 import { useGameState } from '../hooks/useGameState'
 import './GameRoomPage.css'
+import RoulettePage from "./RoulettePage.jsx";
 
 const GAME_NAMES = {
     slots: 'Slots Max',
@@ -23,22 +24,23 @@ export function GameRoomPage() {
 
     return (
         <AppShell>
-            <div className="view-container glassmorphism fade-in">
+            {/* DYNAMICZNA KLASA SZEROKOŚCI: jeśli to ruletka, dajemy max-w-7xl, w innym wypadku zostaje standardowy styl */}
+            <div className={`view-container glassmorphism fade-in ${gameId === 'roulette' ? 'max-w-7xl w-full mx-auto' : ''}`}>
                 <h2 className="neon-title">Room: {gameName}</h2>
 
-                <div className="wallet-panel glassmorphism-dark mini-wallet">
-                    <p className="balance-label">Lounge Balance:</p>
-                    <strong className="balance-amount neon-green mini">
-                        ${balance.toFixed(2)}
-                    </strong>
-                </div>
+                {gameId !== 'roulette' && (
+                    <div className="wallet-panel glassmorphism-dark mini-wallet">
+                        <p className="balance-label">Lounge Balance:</p>
+                        <strong className="balance-amount neon-green mini">
+                            ${balance ? balance.toFixed(2) : "0.00"}
+                        </strong>
+                    </div>
+                )}
 
                 {/* WARUNKOWE RENDEROWANIE GRY */}
                 {gameId === 'roulette' ? (
-                    // Jeśli ID to roulette, renderujemy przygotowaną pod serwer ruletkę
-                    <RoulettePage />
+                    <RoulettePage globalBalance={balance}/>
                 ) : (
-                    // Dla pozostałych gier wyświetlamy dotychczasowy placeholder
                     <div className="game-placeholder-luxe">
                         <p className="placeholder-text">Construction in progress... 🚧</p>
                         <p className="placeholder-subtext">Table will be ready shortly.</p>
