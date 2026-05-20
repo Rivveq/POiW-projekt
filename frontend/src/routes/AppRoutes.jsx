@@ -6,6 +6,7 @@ import { LobbyPage } from '../pages/LobbyPage'
 import { GameRoomPage } from '../pages/GameRoomPage'
 import { SettingsPage } from '../pages/SettingsPage'
 import { ProtectedRoute } from './ProtectedRoute'
+import { DepositPage } from '../pages/DepositPage'
 
 export function AppRoutes() {
     return (
@@ -23,6 +24,16 @@ export function AppRoutes() {
                         </ProtectedRoute>
                     }
                 />
+
+                <Route
+                    path="/deposit"
+                    element={
+                        <ProtectedRoute>
+                            <DepositPage />
+                        </ProtectedRoute>
+                    }
+                />
+
                 <Route
                     path="/game/:gameId"
                     element={
