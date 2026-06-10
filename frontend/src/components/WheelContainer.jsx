@@ -34,6 +34,7 @@ export default function WheelContainer({ isSpinning, lastResult }) {
             let diff = targetAngleWithinCircle - currentMod;
             if (diff < 0) diff += 360;
 
+            // Kula robi 8 pełnych obrotów, zanim zwolni i spadnie na docelowy kąt
             const newAngle = currentAngle.current + (360 * 8) + diff;
 
             currentAngle.current = newAngle;
@@ -42,14 +43,30 @@ export default function WheelContainer({ isSpinning, lastResult }) {
     }, [isSpinning, lastResult]);
 
     return (
-        <div className="w-full min-h-[350px] md:min-h-[450px] flex items-center justify-center p-6 wood-panel rounded-2xl relative shadow-2xl">
-            <div className="relative w-80 h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] rounded-full border-[10px] border-[#2a1b12] shadow-[0_0_50px_rgba(0,0,0,0.8)] bg-[#2a1b12] ring-4 ring-roulette-brass">
+        // Zmiana tutaj: wywalone 'wood-panel', dodany zielony dywan z winietą (inset shadow) i złotą ramką
+        <div className="w-full min-h-[350px] md:min-h-[450px] flex items-center justify-center p-6 bg-[#0c261e] border-2 border-[#c5a363] rounded-2xl relative shadow-[inset_0_0_80px_rgba(0,0,0,0.8),_0_20px_50px_rgba(0,0,0,0.5)] z-10">
+
+            <div className="relative w-80 h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] rounded-full border-[10px] border-[#2a1b12] shadow-[0_0_50px_rgba(0,0,0,0.9)] bg-[#2a1b12] ring-4 ring-[#c5a363]">
 
                 <svg viewBox="0 0 100 100" className="w-full h-full rounded-full drop-shadow-xl">
                     {NUMBERS.map((num, i) => (
                         <g key={num}>
-                            <path d={getSegmentPath(i, 37)} fill={num === 0 ? '#076d3f' : RED_NUMBERS.includes(num) ? '#bb1717' : '#111111'} stroke="#c5a363" strokeWidth="0.2" />
-                            <text x="50" y="10" fill="white" fontSize="4" fontFamily="Playfair Display, serif" fontWeight="bold" textAnchor="middle" transform={`rotate(${i * (360/37)}, 50, 50)`}>
+                            <path
+                                d={getSegmentPath(i, 37)}
+                                fill={num === 0 ? '#076d3f' : RED_NUMBERS.includes(num) ? '#bb1717' : '#111111'}
+                                stroke="#c5a363"
+                                strokeWidth="0.2"
+                            />
+                            <text
+                                x="50"
+                                y="10"
+                                fill="white"
+                                fontSize="4"
+                                fontFamily="Playfair Display, serif"
+                                fontWeight="bold"
+                                textAnchor="middle"
+                                transform={`rotate(${i * (360/37)}, 50, 50)`}
+                            >
                                 {num}
                             </text>
                         </g>

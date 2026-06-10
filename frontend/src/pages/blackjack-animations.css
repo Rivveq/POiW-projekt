@@ -1,0 +1,31 @@
+.card-enter {
+    /* Spowolniona animacja z 0.5s na 0.8s */
+    animation: cardSlideIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    opacity: 0;
+    transform: translateY(-100px) rotate(-15deg);
+}
+
+@keyframes cardSlideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+    }
+}
+
+.chip-enter {
+    animation: chipDrop 0.4s ease-out forwards;
+}
+
+@keyframes chipDrop {
+    0% { transform: translateY(-40px) scale(1.2); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.pulse-text {
+    animation: textPulse 2s infinite ease-in-out;
+}
+
+@keyframes textPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; text-shadow: 0 0 25px rgba(250,204,21,0.9); }
+}

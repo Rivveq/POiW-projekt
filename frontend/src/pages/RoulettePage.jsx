@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRouletteGame } from '../hooks/useRouletteGame';
 import WheelContainer from '../components/WheelContainer';
 import BettingBoard from '../components/BettingBoard';
 import ActionBar from '../components/ActionBar';
 
 export default function RoulettePage({ globalBalance }) {
+    const navigate = useNavigate();
     const {
         rouletteBalance, currentBets, selectedChip, winningNumber,
         isSpinning, placeBet, setSelectedChip, spinWheel, clearBets,
@@ -12,7 +14,17 @@ export default function RoulettePage({ globalBalance }) {
     } = useRouletteGame(globalBalance);
 
     return (
-        <div className="min-h-screen font-serif flex flex-col p-4 md:p-8 max-w-[1600px] mx-auto gap-6">
+        <div className="min-h-screen font-serif flex flex-col p-4 md:p-8 max-w-[1600px] mx-auto gap-6 relative">
+
+            {/* PASEK NAWIGACJI */}
+            <div className="w-full max-w-6xl mx-auto flex justify-start z-10">
+                <button
+                    onClick={() => navigate('/lobby')}
+                    className="px-6 py-2 border-2 border-[#c5a363] text-[#c5a363] font-bold uppercase tracking-widest rounded-xl hover:bg-[#c5a363] hover:text-black transition-all shadow-[0_0_15px_rgba(197,163,99,0.2)]"
+                >
+                    Back to Lobby
+                </button>
+            </div>
 
             {/* ELEGANCKI KOMUNIKAT O WYGRANEJ */}
             {showWinSplash && (
