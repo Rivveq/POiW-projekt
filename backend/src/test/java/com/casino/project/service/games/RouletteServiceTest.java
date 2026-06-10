@@ -31,7 +31,6 @@ class RouletteServiceTest {
 
     @BeforeEach
     void setUp() {
-        // "Hakujemy" prywatną maszynę losującą w RouletteService
         ReflectionTestUtils.setField(rouletteService, "random", secureRandomMock);
     }
 

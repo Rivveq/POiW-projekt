@@ -29,22 +29,27 @@ class SlotsServiceTest {
 
     @BeforeEach
     void setUp() {
-        // MAGIA: Podmieniamy prawdziwego 'random' na naszego mocka wewnątrz SlotsService
         ReflectionTestUtils.setField(slotsService, "random", secureRandomMock);
     }
 
     @Test
-    void shouldWinJackpotWhenThreeDiamondsAreDrawn() {
+    void shouldPayMaxWinWhenEveryReelIsDiamond() {
         String username = "gracz";
         BigDecimal bet = new BigDecimal("10.00");
 
-        // Zmuszamy maszynę do wygranej (losuje 3 razy to samo)
-        when(secureRandomMock.nextInt(100)).thenReturn(2, 3, 4);
+        // drawSymbol() losuje przez nextInt(1000); 20-69 to DIAMOND -> cała siatka w diamentach
+        when(secureRandomMock.nextInt(1000)).thenReturn(20);
+        // bonusowy rzut przez nextInt(100): 50 -> brak globalnego mnożnika i free spinów
+        when(secureRandomMock.nextInt(100)).thenReturn(50);
+
+        // 5 linii wygrywających x (5 symboli DIAMOND -> mnożnik 100) x stawka 10.00 = 5000.00
+        BigDecimal expectedWin = new BigDecimal("5000.00");
 
         SlotsService.SlotResult result = slotsService.spin(username, bet);
 
         verify(walletService, times(1)).withdraw(username, bet);
-        verify(walletService, times(1)).deposit(username, new BigDecimal("100.00"));
-        assertEquals(new BigDecimal("100.00"), result.winAmount());
+        verify(walletService, times(1)).deposit(username, expectedWin);
+        assertEquals(expectedWin, result.winAmount());
+        assertEquals(1, result.multiplier());
     }
 }
