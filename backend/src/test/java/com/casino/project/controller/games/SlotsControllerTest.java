@@ -2,7 +2,7 @@ package com.casino.project.controller.games;
 
 import com.casino.project.dto.games.SlotsRequest;
 import com.casino.project.service.games.SlotsService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -22,9 +22,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SlotsControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private MockMvc mockMvc;
 
     @MockitoBean
     private SlotsService slotsService;

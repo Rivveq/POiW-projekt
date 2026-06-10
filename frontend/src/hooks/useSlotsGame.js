@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiFetch } from '../services/api';
-import { useGameState } from './useGameState'; // Dodany import
+import { useGameState } from './useGameState';
 
 const DEFAULT_GRID = [
     ["CHERRY", "CHERRY", "CHERRY", "CHERRY", "CHERRY"],
@@ -9,7 +9,7 @@ const DEFAULT_GRID = [
 ];
 
 export function useSlotsGame() {
-    const { addXp } = useGameState(); // Wyciągnięcie funkcji dodawania XP
+    const { addXp } = useGameState();
     const [balance, setBalance] = useState(0);
     const [betAmount, setBetAmount] = useState(1);
     const [isSpinning, setIsSpinning] = useState(false);
@@ -57,7 +57,7 @@ export function useSlotsGame() {
                 body: { betAmount: actualBet }
             });
 
-            addXp(actualBet * 10); // Dodanie XP po pomyślnym losowaniu
+            addXp(actualBet * 10);
             setGrid(result.grid);
 
             for (let i = 0; i < 5; i++) {

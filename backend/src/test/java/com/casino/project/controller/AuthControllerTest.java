@@ -6,10 +6,9 @@ import com.casino.project.dto.user.UserRegistrationRequest;
 import com.casino.project.dto.user.UserResponse;
 import com.casino.project.service.AuthService;
 import com.casino.project.service.UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.*;
 import org.springframework.boot.test.autoconfigure.*;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -29,7 +28,8 @@ class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockitoBean
     private UserService userService;

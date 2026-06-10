@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../services/api';
-import { useGameState } from './useGameState'; // Dodany import
+import { useGameState } from './useGameState';
 
 export const useRouletteGame = () => {
-    const { addXp } = useGameState(); // Wyciągnięcie funkcji
+    const { addXp } = useGameState();
     const [rouletteBalance, setRouletteBalance] = useState(0);
     const [currentBets, setCurrentBets] = useState({});
     const [selectedChip, setSelectedChip] = useState(5);
@@ -50,7 +50,7 @@ export const useRouletteGame = () => {
                 body: { bets: currentBets }
             });
 
-            addXp(totalCurrentBet * 10); // Dodanie XP po wysłaniu zakładu
+            addXp(totalCurrentBet * 10);
             setWinningNumber(data.winningNumber);
             setRouletteBalance(prev => prev - totalCurrentBet);
 

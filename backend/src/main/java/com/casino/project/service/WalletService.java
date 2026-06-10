@@ -1,6 +1,8 @@
 package com.casino.project.service;
 
 import com.casino.project.dto.wallet.WalletResponse;
+import com.casino.project.exception.InsufficientFundsException;
+import com.casino.project.exception.ResourceNotFoundException;
 import com.casino.project.model.Wallet;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ public class WalletService {
     @Transactional
     public WalletResponse deposit(String username, BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Value must be greater than zero");
+            throw new IllegalArgumentException("Value must be greater than zero");
         }
 
         Wallet wallet = getWalletEntityByUsername(username);
@@ -38,15 +40,14 @@ public class WalletService {
         Wallet wallet = getWalletEntityByUsername(username);
 
         if (wallet.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient funds");
+            throw new InsufficientFundsException("Insufficient funds");
         }
 
         wallet.setBalance(wallet.getBalance().subtract(amount));
-        walletRepository.save(wallet);
     }
 
     private Wallet getWalletEntityByUsername(String username) {
         return walletRepository.findByUserUsername(username)
-                .orElseThrow(() -> new RuntimeException("Wallet not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
     }
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GameStateContext } from './GameStateContext';
 
-// Nowy, rozbudowany system ekskluzywnych rang
+// rangi wg poziomu
 const getRank = (level) => {
     if (level < 10) return 'Bronze';
     if (level < 20) return 'Silver';
@@ -13,7 +13,6 @@ const getRank = (level) => {
 };
 
 export const GameStateProvider = ({ children }) => {
-    // XP wciąż trzymane w przeglądarce
     const [xp, setXp] = useState(() => parseInt(localStorage.getItem('casino_xp') || '0'));
     const [balance, setBalance] = useState(0);
 
@@ -21,9 +20,7 @@ export const GameStateProvider = ({ children }) => {
         localStorage.setItem('casino_xp', xp.toString());
     }, [xp]);
 
-    // KULOOODPORNA FORMUŁA (Krzywa wykładnicza)
-    // Zamiast liniowego x/100, stosujemy pierwiastek kwadratowy:
-    // np. Level 2 = 150 XP, Level 10 = 15,000 XP, Level 50 = 375,000 XP!
+    // poziom rośnie wg pierwiastka z XP
     const level = Math.floor(Math.sqrt(xp / 150)) + 1;
     const rank = getRank(level);
 

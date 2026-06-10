@@ -2,6 +2,7 @@ package com.casino.project.service;
 
 import com.casino.project.dto.auth.LoginResponse;
 import com.casino.project.dto.user.UserResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,19 +17,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtEncoder jwtEncoder;
     private final UserService userService;
-
-    public AuthService(AuthenticationManager authenticationManager,
-                       JwtEncoder jwtEncoder,
-                       UserService userService) {
-        this.authenticationManager = authenticationManager;
-        this.jwtEncoder = jwtEncoder;
-        this.userService = userService;
-    }
 
     public LoginResponse login(String username, String password) {
         Authentication authentication = authenticationManager.authenticate(
