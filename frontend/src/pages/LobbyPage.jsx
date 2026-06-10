@@ -1,50 +1,57 @@
-import { useNavigate } from 'react-router-dom'
-import { AppShell } from '../components/AppShell/AppShell'
-import { PlayerStatsPanel } from '../components/PlayerStatsPanel/PlayerStatsPanel'
-import { useGameState } from '../hooks/useGameState'
-import './LobbyPage.css'
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AppShell } from '../components/AppShell/AppShell';
+import { PlayerStatsPanel } from '../components/PlayerStatsPanel/PlayerStatsPanel';
+import { useGameState } from '../hooks/useGameState';
+import { apiFetch } from '../services/api';
+import './LobbyPage.css';
 
 const GAMES = [
-    { id: 'slots', label: 'Slots Max', icon: '🍒', cssClass: 'slots' },
-    { id: 'roulette', label: 'Royal Roulette', icon: '🎰', cssClass: 'roulette' },
-    { id: 'poker', label: 'Poker Pro', icon: '🃏', cssClass: 'poker' },
-]
+    { id: 'slots', label: 'Cyber Slots', cssClass: 'slots', path: '/slots' },
+    { id: 'roulette', label: 'Royal Roulette', cssClass: 'roulette', path: '/game/roulette' },
+    { id: 'blackjack', label: 'Blackjack Pro', cssClass: 'poker', path: '/blackjack' },
+];
 
 export function LobbyPage() {
-    const navigate = useNavigate()
-    const { balance, xp, level, rank, dailyClaimed, topUp, claimDaily } =
-        useGameState()
+    const navigate = useNavigate();
+    const gameState = useGameState();
+
+    const [liveBalance, setLiveBalance] = useState(gameState.balance || 0);
+
+    useEffect(() => {
+        apiFetch('/api/wallet/balance')
+            .then(res => {
+                if (res && res.balance !== undefined) {
+                    setLiveBalance(res.balance);
+                    if (gameState.setBalance) gameState.setBalance(res.balance);
+                }
+            })
+            .catch(console.error);
+    }, [gameState]);
 
     return (
         <AppShell>
             <div className="view-container glassmorphism fade-in">
                 <h2 className="neon-title">Grand Lobby</h2>
 
-                <PlayerStatsPanel rank={rank} level={level} xp={xp} />
+                <PlayerStatsPanel rank={gameState.rank} level={gameState.level} xp={gameState.xp} />
 
                 <div className="wallet-panel glassmorphism-dark">
                     <div className="balance-info">
                         <p className="balance-label">Cash Balance:</p>
                         <strong className="balance-amount neon-green">
-                            ${balance.toFixed(2)}
+                            ${liveBalance.toFixed(2)}
                         </strong>
                     </div>
                     <button
                         className="btn-success neon-green-btn"
                         onClick={() => navigate('/deposit')}
                     >
-                        💳 Deposit Funds
+                        Deposit Funds
                     </button>
                 </div>
 
-                {!dailyClaimed && (
-                    <button
-                        className="btn-bonus neon-gold-btn pulse-anim"
-                        onClick={claimDaily}
-                    >
-                        🎁 Claim Daily $500 Gift!
-                    </button>
-                )}
+                {/* Sekcja Daily Gift została stąd usunięta */}
 
                 <h3 className="section-title">Select Your Game:</h3>
                 <div className="games-grid-luxe">
@@ -52,9 +59,9 @@ export function LobbyPage() {
                         <button
                             key={game.id}
                             className={`btn-game-luxe ${game.cssClass}`}
-                            onClick={() => navigate(`/game/${game.id}`)}
+                            onClick={() => navigate(game.path)}
                         >
-                            <span className="game-icon-luxe">{game.icon}</span> {game.label}
+                            {game.label}
                         </button>
                     ))}
                 </div>
@@ -64,10 +71,10 @@ export function LobbyPage() {
                         className="btn-secondary neon-btn-outline"
                         onClick={() => navigate('/settings')}
                     >
-                        ⚙️ Lounge Settings
+                        Lounge Settings
                     </button>
                 </div>
             </div>
         </AppShell>
-    )
+    );
 }

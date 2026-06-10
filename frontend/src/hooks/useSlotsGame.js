@@ -1,91 +1,114 @@
-import { useState, useContext, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiFetch } from '../services/api';
-import { GameStateContext } from '../context/GameStateContext';
+import { useGameState } from './useGameState'; // Dodany import
 
-// 1. Definiujemy linie płatnicze tak samo jak na backendzie dla celów wizualizacji
-const PAYLINES = [
-    { id: 1, label: 'Top Line', coords: [[0,0], [0,1], [0,2], [0,3], [0,4]] },
-    { id: 2, label: 'Middle Line', coords: [[1,0], [1,1], [1,2], [1,3], [1,4]] },
-    { id: 3, label: 'Bottom Line', coords: [[2,0], [2,1], [2,2], [2,3], [2,4]] },
-    { id: 4, label: 'V Shape', coords: [[0,0], [1,1], [2,2], [1,3], [0,4]] },
-    { id: 5, label: 'A Shape', coords: [[2,0], [1,1], [0,2], [1,3], [2,4]] },
+const DEFAULT_GRID = [
+    ["CHERRY", "CHERRY", "CHERRY", "CHERRY", "CHERRY"],
+    ["CHERRY", "CHERRY", "CHERRY", "CHERRY", "CHERRY"],
+    ["CHERRY", "CHERRY", "CHERRY", "CHERRY", "CHERRY"]
 ];
 
 export function useSlotsGame() {
-    const { balance, placeBet, topUp } = useContext(GameStateContext);
-
-    // 2. Stan siatki 2D array (3x5)
-    const [grid, setGrid] = useState(Array(3).fill(["🍒", "🍒", "🍒", "🍒", "🍒"]));
+    const { addXp } = useGameState(); // Wyciągnięcie funkcji dodawania XP
+    const [balance, setBalance] = useState(0);
+    const [betAmount, setBetAmount] = useState(1);
     const [isSpinning, setIsSpinning] = useState(false);
-    const [spinningReels, setSpinningReels] = useState(Array(5).fill(false)); // Stan każdego bębna
+    const [spinningReels, setSpinningReels] = useState([false, false, false, false, false]);
+    const [grid, setGrid] = useState(DEFAULT_GRID);
+
     const [currentWin, setCurrentWin] = useState(0);
     const [showWinSplash, setShowWinSplash] = useState(false);
-    const [betAmount, setBetAmount] = useState(50);
+    const [activeMultiplier, setActiveMultiplier] = useState(1);
+    const [freeSpins, setFreeSpins] = useState(0);
 
-    const spinIntervalRef = useRef(null);
+    const [isAutoSpin, setIsAutoSpin] = useState(false);
+    const [isQuickSpin, setIsQuickSpin] = useState(false);
 
-    const spin = async () => {
-        if (isSpinning || balance < betAmount) return;
+    const autoSpinTimer = useRef(null);
 
-        // Reset stanu
+    const fetchBalance = useCallback(async () => {
+        try {
+            const res = await apiFetch('/api/wallet/balance');
+            if (res && res.balance !== undefined) setBalance(res.balance);
+        } catch (err) { console.error(err); }
+    }, []);
+
+    useEffect(() => { fetchBalance(); }, [fetchBalance]);
+
+    const performSpin = async () => {
+        if (balance < betAmount && freeSpins === 0) {
+            setIsAutoSpin(false);
+            return;
+        }
+
         setIsSpinning(true);
-        setSpinningReels(Array(5).fill(true)); // Wszystkie bębny się kręcą
         setShowWinSplash(false);
         setCurrentWin(0);
+        setActiveMultiplier(1);
+        setSpinningReels([true, true, true, true, true]);
 
-        // Lokalnie zmniejszamy balans na czas trwania animacji
-        placeBet(betAmount, 10);
+        const spinDuration = isQuickSpin ? 100 : 300;
 
         try {
-            // Wysłanie żądania do backendu
-            const response = await apiFetch('/api/slots/spin', {
+            const actualBet = freeSpins > 0 ? 0 : betAmount;
+
+            const result = await apiFetch('/api/slots/spin', {
                 method: 'POST',
-                body: { betAmount }
+                body: { betAmount: actualBet }
             });
 
-            // 3. Efekt wizualny: zatrzymywanie bębnów co 400ms od lewej
-            response.grid.forEach((finalRow, rowIndex) => {
-                finalRow.forEach((finalSymbol, colIndex) => {
-                    setTimeout(() => {
-                        // Podmieniamy symbole w siatce wiersz po wierszu dla konkretnej kolumny
-                        setGrid(prevGrid => {
-                            const newGrid = prevGrid.map(row => [...row]);
-                            newGrid[rowIndex][colIndex] = finalSymbol;
-                            return newGrid;
-                        });
+            addXp(actualBet * 10); // Dodanie XP po pomyślnym losowaniu
+            setGrid(result.grid);
 
-                        // Gdy ostatni wiersz tej kolumny się zatrzyma, wyłącz stan 'spinning' dla kolumny
-                        if (rowIndex === 2) {
-                            setSpinningReels(prev => {
-                                const newSpinState = [...prev];
-                                newSpinState[colIndex] = false;
-                                return newSpinState;
-                            });
-                        }
-                    }, (colIndex + 1) * 450); // Zatrzymywanie co 450ms
+            for (let i = 0; i < 5; i++) {
+                await new Promise(r => setTimeout(r, spinDuration));
+                setSpinningReels(prev => {
+                    const next = [...prev];
+                    next[i] = false;
+                    return next;
                 });
-            });
+            }
 
-            // 4. Po zatrzymaniu ostatniego bębna (ok. 2500ms) pokaż wynik
-            setTimeout(() => {
-                setIsSpinning(false);
-                if (response.winAmount > 0) {
-                    setCurrentWin(response.winAmount);
-                    setShowWinSplash(true);
-                    topUp(response.winAmount); // Aktualizacja balansu w Context
-                    setTimeout(() => setShowWinSplash(false), 3000); // Ukryj splash po 3s
-                }
-            }, (5 * 450) + 200); // Czas ostatniego bębna + margines
+            if (result.winAmount > 0) {
+                setCurrentWin(result.winAmount);
+                setShowWinSplash(true);
+                if (result.multiplier > 1) setActiveMultiplier(result.multiplier);
+            }
 
-        } catch (error) {
-            console.error("Błąd podczas kręcenia:", error);
+            if (result.freeSpinsWon > 0) {
+                setFreeSpins(prev => prev + result.freeSpinsWon);
+            } else if (freeSpins > 0) {
+                setFreeSpins(prev => prev - 1);
+            }
+
+            await fetchBalance();
+
+        } catch (err) {
+            console.error('Spin failed', err);
+            setSpinningReels([false, false, false, false, false]);
+            setIsAutoSpin(false);
+        } finally {
             setIsSpinning(false);
-            setSpinningReels(Array(5).fill(false)); // Wyłącz animację kręcenia
         }
     };
 
+    useEffect(() => {
+        if (isAutoSpin && !isSpinning) {
+            const delay = showWinSplash ? 2000 : 500;
+            autoSpinTimer.current = setTimeout(() => {
+                performSpin();
+            }, delay);
+        }
+        return () => clearTimeout(autoSpinTimer.current);
+    }, [isAutoSpin, isSpinning, showWinSplash]);
+
+    const toggleAutoSpin = () => setIsAutoSpin(!isAutoSpin);
+    const toggleQuickSpin = () => setIsQuickSpin(!isQuickSpin);
+
     return {
         balance, betAmount, setBetAmount, isSpinning, spinningReels,
-        grid, currentWin, showWinSplash, spin, PAYLINES
+        grid, currentWin, showWinSplash, performSpin,
+        isAutoSpin, toggleAutoSpin, isQuickSpin, toggleQuickSpin,
+        activeMultiplier, freeSpins
     };
 }
