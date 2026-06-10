@@ -1,6 +1,7 @@
 package com.casino.project.service.games;
 
 import com.casino.project.service.WalletService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -11,13 +12,10 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class SlotsService {
     private final WalletService walletService;
     private final SecureRandom random = new SecureRandom();
-
-    public SlotsService(WalletService walletService) {
-        this.walletService = walletService;
-    }
 
     private String drawSymbol() {
         int roll = random.nextInt(1000);

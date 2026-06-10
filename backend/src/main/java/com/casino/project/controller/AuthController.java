@@ -7,21 +7,18 @@ import com.casino.project.dto.user.UserResponse;
 import com.casino.project.service.AuthService;
 import com.casino.project.service.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
     private final AuthService authService;
-
-    public AuthController(UserService userService, AuthService authService) {
-        this.userService = userService;
-        this.authService = authService;
-    }
 
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRegistrationRequest request) {

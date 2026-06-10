@@ -10,9 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/rooms")
@@ -21,67 +22,64 @@ public class RoomController {
 
     private final RoomService roomService;
 
-    public RoomResponse createRoom(@Valid @RequestBody RoomCreateRequest request,
-                                   @AuthenticationPrincipal UserDetails userDetails) {
-        return roomService.createRoom(request, userDetails.getUsername());
+    @PostMapping
+    public ResponseEntity<RoomResponse> createRoom(@Valid @RequestBody RoomCreateRequest request,
+                                                   Principal principal) {
+        RoomResponse response = roomService.createRoom(request, principal.getName());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
-    public RoomResponse getRoom(@PathVariable Long id) {
-        return roomService.getRoomById(id);
+    public ResponseEntity<RoomResponse> getRoom(@PathVariable Long id) {
+        return ResponseEntity.ok(roomService.getRoomById(id));
     }
 
     @GetMapping
-    public Page<RoomResponse> getAllRooms(
+    public ResponseEntity<Page<RoomResponse>> getAllRooms(
             @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
-        return roomService.getAllRooms(pageable);
+        return ResponseEntity.ok(roomService.getAllRooms(pageable));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteRoom(@PathVariable Long id,  @AuthenticationPrincipal UserDetails userDetails) {
-        roomService.deleteRoom(id, userDetails.getUsername());
+    public ResponseEntity<Void> deleteRoom(@PathVariable Long id, Principal principal) {
+        roomService.deleteRoom(id, principal.getName());
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
-    public RoomResponse updateRoom(@PathVariable Long id, @RequestBody RoomUpdateRequest request, @AuthenticationPrincipal UserDetails userDetails){
-        return roomService.updateRoom(id, request, userDetails.getUsername());
+    public ResponseEntity<RoomResponse> updateRoom(@PathVariable Long id, @Valid @RequestBody RoomUpdateRequest request,
+                                                   Principal principal) {
+        return ResponseEntity.ok(roomService.updateRoom(id, request, principal.getName()));
     }
 
     @PostMapping("/{id}/join")
-    public RoomResponse joinRoom(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        return roomService.joinRoom(username, id);
+    public ResponseEntity<RoomResponse> joinRoom(@PathVariable Long id, Principal principal) {
+        return ResponseEntity.ok(roomService.joinRoom(principal.getName(), id));
     }
 
     @PostMapping("/{id}/leave")
-    public RoomResponse leaveRoom(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        return roomService.leaveRoom(username, id);
+    public ResponseEntity<RoomResponse> leaveRoom(@PathVariable Long id, Principal principal) {
+        return ResponseEntity.ok(roomService.leaveRoom(principal.getName(), id));
     }
 
     @PostMapping("/{id}/start")
-    public RoomResponse startRoom(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        return roomService.startGame(id, username);
+    public ResponseEntity<RoomResponse> startRoom(@PathVariable Long id, Principal principal) {
+        return ResponseEntity.ok(roomService.startGame(id, principal.getName()));
     }
 
-    @GetMapping("{id}/game")
-    public RoomResponse getGame(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        return roomService.gameStatus(id,username);
+    @GetMapping("/{id}/game")
+    public ResponseEntity<RoomResponse> getGame(@PathVariable Long id, Principal principal) {
+        return ResponseEntity.ok(roomService.gameStatus(id, principal.getName()));
     }
 
-    @PostMapping("{id}/action")
-    public RoomResponse actionRoom(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        return roomService.gameAction(id,username);
+    @PostMapping("/{id}/action")
+    public ResponseEntity<RoomResponse> actionRoom(@PathVariable Long id, Principal principal) {
+        return ResponseEntity.ok(roomService.gameAction(id, principal.getName()));
     }
 
-    @PostMapping("{id}/end")
-    public RoomResponse endRoom(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        return roomService.endGame(id, username);
+    @PostMapping("/{id}/end")
+    public ResponseEntity<RoomResponse> endRoom(@PathVariable Long id, Principal principal) {
+        return ResponseEntity.ok(roomService.endGame(id, principal.getName()));
     }
 }
