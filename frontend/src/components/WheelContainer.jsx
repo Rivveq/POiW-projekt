@@ -43,7 +43,6 @@ export default function WheelContainer({ isSpinning, lastResult }) {
     }, [isSpinning, lastResult]);
 
     return (
-        // Zmiana tutaj: wywalone 'wood-panel', dodany zielony dywan z winietą (inset shadow) i złotą ramką
         <div className="w-full min-h-[350px] md:min-h-[450px] flex items-center justify-center p-6 bg-[#0c261e] border-2 border-[#c5a363] rounded-2xl relative shadow-[inset_0_0_80px_rgba(0,0,0,0.8),_0_20px_50px_rgba(0,0,0,0.5)] z-10">
 
             <div className="relative w-80 h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] rounded-full border-[10px] border-[#2a1b12] shadow-[0_0_50px_rgba(0,0,0,0.9)] bg-[#2a1b12] ring-4 ring-[#c5a363]">

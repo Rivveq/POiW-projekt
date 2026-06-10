@@ -1,7 +1,6 @@
 import React from 'react';
 
 export function PlayerStatsPanel({ rank, level, xp }) {
-    // Obliczanie precyzyjnego progresu do następnego levelu
     const currentLevelBaseXp = Math.pow(level - 1, 2) * 150;
     const nextLevelXp = Math.pow(level, 2) * 150;
     const xpInCurrentLevel = xp - currentLevelBaseXp;
@@ -41,7 +40,6 @@ export function PlayerStatsPanel({ rank, level, xp }) {
         <div className="w-full max-w-2xl mx-auto my-6">
             <div className={`bg-[#050b09] p-6 rounded-[30px] border-2 ${rankStyle.border} ${rankStyle.shadow} flex flex-col items-center gap-4 relative overflow-hidden transition-all duration-700`}>
 
-                {/* Ozdobny błysk świetlny w rogu */}
                 <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl pointer-events-none" />
 
                 <div className="flex w-full justify-between items-center z-10">
@@ -61,7 +59,6 @@ export function PlayerStatsPanel({ rank, level, xp }) {
                     </div>
                 </div>
 
-                {/* Precyzyjny Pasek Progresu XP */}
                 <div className="w-full mt-4 z-10">
                     <div className="flex justify-between text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">
                         <span>XP: {xp.toLocaleString()}</span>
@@ -72,7 +69,6 @@ export function PlayerStatsPanel({ rank, level, xp }) {
                             className={`h-full rounded-full bg-gradient-to-r ${rankStyle.bar} transition-all duration-1000 ease-out relative`}
                             style={{ width: `${progressPercent}%` }}
                         >
-                            {/* Efekt przelatującego błysku na pasku */}
                             <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] -translate-x-full animate-[shimmer_2s_infinite]" />
                         </div>
                     </div>
