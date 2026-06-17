@@ -1,16 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { AppShell } from '../components/AppShell/AppShell'
 import { useAuth } from '../hooks/useAuth'
-import { useGameState } from '../hooks/useGameState'
 import './SettingsPage.css'
 
 export function SettingsPage() {
     const navigate = useNavigate()
     const { logout } = useAuth()
-    const { reset } = useGameState()
 
     const handleLogout = () => {
-        reset()
         logout()
         navigate('/login', { replace: true })
     }

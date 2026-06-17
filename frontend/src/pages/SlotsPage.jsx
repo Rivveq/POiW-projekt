@@ -48,13 +48,61 @@ const getSymbolKey = (rawSymbol) => {
 
 const BET_AMOUNTS = [0.50, 1, 2, 5, 10, 25];
 
+const ReelCell = ({ isSpinning, symbolKey, isWinningCell }) => {
+    const [strip, setStrip] = React.useState([]);
+
+    React.useEffect(() => {
+        if (isSpinning) {
+            const keys = ["CHERRY", "LEMON", "BELL", "SEVEN", "DIAMOND", "WILD"];
+            const newStrip = [];
+            newStrip.push(symbolKey);
+            for (let i = 0; i < 20; i++) {
+                newStrip.push(keys[Math.floor(Math.random() * keys.length)]);
+            }
+            setStrip(newStrip);
+        }
+    }, [isSpinning, symbolKey]);
+
+    const FinalIcon = SlotSymbols[symbolKey] || SlotSymbols.CHERRY;
+
+    return (
+        <div className={`relative w-16 h-16 md:w-24 md:h-24 bg-[#111] rounded-xl flex items-center justify-center shadow-xl border-2 border-white/5 overflow-hidden transition-colors duration-300 ${isWinningCell ? 'slot-cell-winner bg-[#1a1a1a]' : ''}`}>
+            {strip.length > 0 ? (
+                <div
+                    className="absolute top-0 left-0 w-full flex flex-col items-center"
+                    style={{
+                        transform: isSpinning ? `translate3d(0, -${(strip.length - 1) * 100}%, 0)` : 'translate3d(0, 0%, 0)',
+                        transition: isSpinning ? 'none' : 'transform 1.5s cubic-bezier(0.1, 0.7, 0.1, 1)',
+                        willChange: 'transform'
+                    }}
+                >
+                    {strip.map((key, i) => {
+                        const Icon = SlotSymbols[key] || SlotSymbols.CHERRY;
+                        return (
+                            <div key={i} className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center shrink-0">
+                                <div className={`w-[75%] h-[75%] ${!isSpinning && i === 0 ? 'symbol-land' : ''}`}>
+                                    <Icon />
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            ) : (
+                <div className={`w-[75%] h-[75%] flex items-center justify-center ${isWinningCell ? 'explosion-effect' : ''}`}>
+                    <FinalIcon />
+                </div>
+            )}
+        </div>
+    );
+};
+
 export function SlotsPage() {
     const navigate = useNavigate();
     const {
         balance, betAmount, setBetAmount, isSpinning, spinningReels,
         grid, currentWin, showWinSplash, performSpin,
         isAutoSpin, toggleAutoSpin, isQuickSpin, toggleQuickSpin,
-        activeMultiplier, freeSpins
+        activeMultiplier, freeSpins, winningCells
     } = useSlotsGame();
 
     return (
@@ -91,37 +139,21 @@ export function SlotsPage() {
 
                 <div className="w-full max-w-[1000px] bg-[#0c1a15] border border-green-500/30 p-8 rounded-[40px] shadow-[inset_0_0_80px_rgba(0,0,0,0.8),_0_20px_50px_rgba(0,0,0,0.5)] flex flex-col gap-6 items-center relative z-10">
 
-                    {/* Główna sekcja slotów z twardym layoutem (overflow-hidden chroni siatkę) */}
                     <div className="bg-[#050b09] p-4 md:p-6 rounded-2xl border border-green-500/20 shadow-[inset_0_0_40px_rgba(0,0,0,1)] flex gap-2 md:gap-4 w-full justify-center">
                         {[0, 1, 2, 3, 4].map((colIndex) => (
                             <div key={colIndex} className="flex flex-col gap-2 md:gap-4">
                                 {grid.map((row, rowIndex) => {
                                     const isColSpinning = spinningReels[colIndex];
                                     const symbolKey = getSymbolKey(row[colIndex]);
-                                    const SymbolIcon = SlotSymbols[symbolKey] || SlotSymbols.CHERRY;
+                                    const isWinningCell = winningCells.some(cell => cell[0] === rowIndex && cell[1] === colIndex);
 
                                     return (
-                                        <div
+                                        <ReelCell
                                             key={`${rowIndex}-${colIndex}`}
-                                            className={`relative w-16 h-16 md:w-24 md:h-24 bg-[#111] rounded-xl flex items-center justify-center shadow-xl border-2 border-white/5 overflow-hidden transition-colors duration-300
-                                                ${showWinSplash && currentWin > 0 && !isColSpinning ? 'slot-cell-winner bg-[#1a1a1a]' : ''}
-                                            `}
-                                        >
-                                            {isColSpinning ? (
-                                                /* Udawany, płynny i długi pasek bębna zjeżdżający w dół */
-                                                <div className="absolute top-0 left-0 w-full h-[200%] flex flex-col items-center justify-around animate-spin-reel opacity-70 blur-[1.5px]">
-                                                    <div className="w-[65%] h-1/4 flex items-center justify-center"><SlotSymbols.SEVEN /></div>
-                                                    <div className="w-[65%] h-1/4 flex items-center justify-center"><SlotSymbols.DIAMOND /></div>
-                                                    <div className="w-[65%] h-1/4 flex items-center justify-center"><SlotSymbols.SEVEN /></div>
-                                                    <div className="w-[65%] h-1/4 flex items-center justify-center"><SlotSymbols.DIAMOND /></div>
-                                                </div>
-                                            ) : (
-                                                /* Właściwy symbol po zatrzymaniu */
-                                                <div className={`w-[75%] h-[75%] flex items-center justify-center symbol-land ${showWinSplash && currentWin > 0 ? 'explosion-effect' : ''}`}>
-                                                    <SymbolIcon />
-                                                </div>
-                                            )}
-                                        </div>
+                                            isSpinning={isColSpinning}
+                                            symbolKey={symbolKey}
+                                            isWinningCell={isWinningCell}
+                                        />
                                     );
                                 })}
                             </div>

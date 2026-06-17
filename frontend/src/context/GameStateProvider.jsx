@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GameStateContext } from './GameStateContext';
+import { useAuth } from '../hooks/useAuth';
 
 // rangi wg poziomu
 const getRank = (level) => {
@@ -13,14 +14,26 @@ const getRank = (level) => {
 };
 
 export const GameStateProvider = ({ children }) => {
-    const [xp, setXp] = useState(() => parseInt(localStorage.getItem('casino_xp') || '0'));
+    const { user } = useAuth();
+
+    const xpKey = user && user.username ? `casino_xp_${user.username}` : 'casino_xp_guest';
+
+    const [xp, setXp] = useState(() => parseInt(localStorage.getItem(xpKey) || '0'));
     const [balance, setBalance] = useState(0);
 
     useEffect(() => {
-        localStorage.setItem('casino_xp', xp.toString());
-    }, [xp]);
+        const savedXp = parseInt(localStorage.getItem(xpKey) || '0');
+        setXp(savedXp);
 
-    // poziom rośnie wg pierwiastka z XP
+        setBalance(0);
+    }, [xpKey]);
+
+    useEffect(() => {
+        if (user) {
+            localStorage.setItem(xpKey, xp.toString());
+        }
+    }, [xp, xpKey, user]);
+
     const level = Math.floor(Math.sqrt(xp / 150)) + 1;
     const rank = getRank(level);
 

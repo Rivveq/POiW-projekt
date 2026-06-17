@@ -15,6 +15,7 @@ export function useSlotsGame() {
     const [isSpinning, setIsSpinning] = useState(false);
     const [spinningReels, setSpinningReels] = useState([false, false, false, false, false]);
     const [grid, setGrid] = useState(DEFAULT_GRID);
+    const [winningCells, setWinningCells] = useState([]);
 
     const [currentWin, setCurrentWin] = useState(0);
     const [showWinSplash, setShowWinSplash] = useState(false);
@@ -45,6 +46,7 @@ export function useSlotsGame() {
         setShowWinSplash(false);
         setCurrentWin(0);
         setActiveMultiplier(1);
+        setWinningCells([]);
         setSpinningReels([true, true, true, true, true]);
 
         const spinDuration = isQuickSpin ? 100 : 300;
@@ -67,6 +69,12 @@ export function useSlotsGame() {
                     next[i] = false;
                     return next;
                 });
+            }
+
+            await new Promise(r => setTimeout(r, 1500));
+
+            if (result.winningCells) {
+                setWinningCells(result.winningCells);
             }
 
             if (result.winAmount > 0) {
@@ -94,13 +102,13 @@ export function useSlotsGame() {
 
     useEffect(() => {
         if (isAutoSpin && !isSpinning) {
-            const delay = showWinSplash ? 2000 : 500;
+            const delay = showWinSplash || winningCells.length > 0 ? 2500 : 800;
             autoSpinTimer.current = setTimeout(() => {
                 performSpin();
             }, delay);
         }
         return () => clearTimeout(autoSpinTimer.current);
-    }, [isAutoSpin, isSpinning, showWinSplash]);
+    }, [isAutoSpin, isSpinning, showWinSplash, winningCells.length]);
 
     const toggleAutoSpin = () => setIsAutoSpin(!isAutoSpin);
     const toggleQuickSpin = () => setIsQuickSpin(!isQuickSpin);
@@ -109,6 +117,6 @@ export function useSlotsGame() {
         balance, betAmount, setBetAmount, isSpinning, spinningReels,
         grid, currentWin, showWinSplash, performSpin,
         isAutoSpin, toggleAutoSpin, isQuickSpin, toggleQuickSpin,
-        activeMultiplier, freeSpins
+        activeMultiplier, freeSpins, winningCells
     };
 }
